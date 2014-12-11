@@ -102,6 +102,9 @@ module.exports = function (grunt) {
 
     // Compiles CoffeeScript to JavaScript
     coffee: {
+      options: {
+        bare: true
+      },
       dist: {
         files: [{
           expand: true,

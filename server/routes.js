@@ -60,6 +60,25 @@ function showContact(req, res) {
     });
 }
 
+function editContact(req, res) {
+    var contactId = req.params.id;
+    var contactData = req.body;
+    Contact.findOne({ _id: contactId }, function (err, contact) {
+        if (err) {
+            handleDatabaseError(req, res, err);
+        } else {
+            if (contact) {
+                contact.set(contactData);
+                contact.save(function(err) {
+                  res.json(contact);
+                })
+            } else {
+                res.status(404).json({ message: 'Contact not found' })
+            }
+        }
+    });
+}
+
 function deleteContact(req, res) {
     var contactId = req.params.id;
     Contact.findOneAndRemove({ _id: contactId }, function (err, contact) {
@@ -79,5 +98,6 @@ module.exports = function (app) {
     app.get('/contacts', showContactList);
     app.get('/contacts/:id', showContact);
     app.post('/contacts', createContact);
+    app.put('/contacts/:id', editContact);
     app.delete('/contacts/:id', deleteContact);
 }
