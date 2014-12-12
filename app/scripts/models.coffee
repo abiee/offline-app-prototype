@@ -1,5 +1,5 @@
 class Contact extends Backbone.Model
-  urlRoot: '/contacts'
+  urlRoot: '/api/contacts'
   idAttribute: '_id'
 
   defaults:
@@ -17,5 +17,5 @@ class Contact extends Backbone.Model
 
 
 class ContactCollection extends Backbone.Collection
-  url: '/contacts'
+  url: '/api/contacts'
   model: Contact

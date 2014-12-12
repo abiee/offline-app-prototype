@@ -95,9 +95,9 @@ function deleteContact(req, res) {
 }
 
 module.exports = function (app) {
-    app.get('/contacts', showContactList);
-    app.get('/contacts/:id', showContact);
-    app.post('/contacts', createContact);
-    app.put('/contacts/:id', editContact);
-    app.delete('/contacts/:id', deleteContact);
+    app.get('/api/contacts', showContactList);
+    app.get('/api/contacts/:id', showContact);
+    app.post('/api/contacts', createContact);
+    app.put('/api/contacts/:id', editContact);
+    app.delete('/api/contacts/:id', deleteContact);
 }
