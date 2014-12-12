@@ -35,7 +35,6 @@ class ContactsAppController extends Backbone.Marionette.Controller
     phoneCollectionEditor = new PhoneCollectionEditor collection: phoneCollection
     emailCollectionEditor = new EmailCollectionEditor collection: emailCollection
 
-    console.log @
     editorLayout.on 'edit:cancel', => @showContact contact
     editorLayout.on 'edit:save', =>
       contact.set 'name', contactEditorGeneral.ui.name.val()
