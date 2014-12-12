@@ -68,3 +68,11 @@ contactListView.render()
 ($ '#new-contact').on 'click', (event) ->
   event.preventDefault()
   createContact()
+
+hb = new HeartBeat
+hb.start()
+console.log 'is online?', hb.isOnline()
+
+setInterval ->
+  console.log 'is online?', hb.isOnline()
+, 5000

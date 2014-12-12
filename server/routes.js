@@ -94,10 +94,15 @@ function deleteContact(req, res) {
     })
 }
 
+function respondPing(req, res) {
+  res.send('pong');
+}
+
 module.exports = function (app) {
     app.get('/api/contacts', showContactList);
     app.get('/api/contacts/:id', showContact);
     app.post('/api/contacts', createContact);
     app.put('/api/contacts/:id', editContact);
     app.delete('/api/contacts/:id', deleteContact);
+    app.get('/api/ping', respondPing);
 }
