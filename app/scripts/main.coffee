@@ -1,78 +1,24 @@
-createContact = ->
-  contact = new Contact()
-  showEditor contact
+App = new Backbone.Marionette.Application
+App.addRegions
+  contactViewerRegion: '#contact-viewer'
 
-showContact = (contact) ->
-  contactDetails = new ContactDetails model: contact
-  contactDetails.on 'contact:edit', showEditor
-  contactDetails.on 'contact:delete', (contact) ->
-    if confirm 'Sure?'
-      contact.destroy
-        success: ->
-          contactViewerRegion.reset()
-        error: ->
-          alert 'Can\'t delete now'
-  contactViewerRegion.show contactDetails
+App.heartbeat = new HeartBeat
 
-showEditor = (contact) ->
-  phoneCollection = new Backbone.Collection contact.get 'phones'
-  emailCollection = new Backbone.Collection contact.get 'emails'
+App.addInitializer ->
+  App.heartbeat.start()
 
-  editorLayout = new ContactEditorLayout
-  contactEditorGeneral = new ContactEditorGeneral model: contact
-  phoneCollectionEditor = new PhoneCollectionEditor collection: phoneCollection
-  emailCollectionEditor = new EmailCollectionEditor collection: emailCollection
+  App.heartbeat.checkServerAvailability().done ->
+    console.log 'is online?', App.heartbeat.isOnline()
+  setInterval ->
+    console.log 'is online?', App.heartbeat.isOnline()
+  , 5000
 
-  editorLayout.on 'edit:cancel', -> showContact contact
-  editorLayout.on 'edit:save', ->
-    contact.set 'name', contactEditorGeneral.ui.name.val()
-    contact.set 'phones', phoneCollection.toJSON()
-    contact.set 'emails', emailCollection.toJSON()
-    contact.save null,
-      success: ->
-        if not contacts.get contact then contacts.add contact
-        showContact contact
-      error: ->
-        alert 'Oops... Can\'t save contact'
-  editorLayout.on 'phones:new', -> phoneCollection.add
-    description: ''
-    number: ''
-  editorLayout.on 'emails:new', -> emailCollection.add
-    description: ''
-    email: ''
-  phoneCollectionEditor.on 'childview:phone:delete', (view) ->
-    phoneCollection.remove view.model
-  emailCollectionEditor.on 'childview:email:delete', (view) ->
-    emailCollection.remove view.model
+  ($ '#new-contact').on 'click', (event) ->
+    event.preventDefault()
+    controller.createContact()
 
-  contactViewerRegion.show editorLayout
-  editorLayout.generalRegion.show contactEditorGeneral
-  editorLayout.phonesRegion.show phoneCollectionEditor
-  editorLayout.emailsRegion.show emailCollectionEditor
+  contacts = new ContactCollection
+  controller = new ContactsAppController contacts: contacts
 
-
-contacts = new ContactCollection()
-contacts.fetch()
-
-contactViewerRegion = new Backbone.Marionette.Region el: '#contact-viewer'
-
-contactListView = new ContactListView
-  el: '#contact-list'
-  collection: contacts
-
-contactListView.on 'childview:contact:selected', (view, contact) ->
-  showContact contact
-
-contactListView.render()
-
-($ '#new-contact').on 'click', (event) ->
-  event.preventDefault()
-  createContact()
-
-hb = new HeartBeat
-hb.start()
-console.log 'is online?', hb.isOnline()
-
-setInterval ->
-  console.log 'is online?', hb.isOnline()
-, 5000
+  contacts.fetch()
+  controller.showContactList()
