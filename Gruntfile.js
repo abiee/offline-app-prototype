@@ -54,6 +54,7 @@ module.exports = function (grunt) {
       }
     },
 
+    // Run express server
     nodemon: {
       dev: {
         script: 'server/app.js',
@@ -283,6 +284,17 @@ module.exports = function (grunt) {
       }
     },
 
+    appcache: {
+      options: {
+        basePath: 'dist'
+      },
+      dist: {
+        dest: 'dist/manifest.appcache',
+        cache: 'dist/**/*',
+        network: '*'
+      }
+    },
+
     // Run some tasks in parallel to speed up build process
     concurrent: {
       server: [
@@ -335,7 +347,8 @@ module.exports = function (grunt) {
     'copy:dist',
     'rev',
     'usemin',
-    'htmlmin'
+    'htmlmin',
+    'appcache'
   ]);
 
   grunt.registerTask('default', [

@@ -7,7 +7,13 @@ app = express();
 
 app.use(compression());
 app.use(bodyParser.json())
-app.use(express.static(__dirname + '/../app'));
+
+if(process.env.NODE_ENV === 'production') {
+  app.use(express.static(__dirname + '/../dist'));
+} else {
+  app.use(express.static(__dirname + '/../app'));
+}
+
 app.use('/bower_components', express.static(__dirname + '/../bower_components'));
 app.use(express.static(__dirname + '/../.tmp'));
 
