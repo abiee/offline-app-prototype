@@ -24,6 +24,9 @@
 
     <div class="container">
       <div class="header">
+        <h3 id="connection-status" class="pull-right">
+          Verificando...
+        </h3>
         <h3 class="text-muted">Test offline app</h3>
       </div>
 
@@ -127,6 +130,14 @@
       <span class="email"><%= email %></span>
     </script>
 
+    <script id="online-notifier" type="text/template">
+      Online <span class="glyphicon glyphicon-ok">
+    </script>
+
+    <script id="offline-notifier" type="text/template">
+      Offline <span class="glyphicon glyphicon-remove">
+    </script>
+
     <!-- build:js(.) scripts/vendor.js -->
     <!-- bower:js -->
     <script src="bower_components/jquery/dist/jquery.js"></script>
@@ -166,6 +177,7 @@
 
         <!-- build:js({app,.tmp}) scripts/main.js -->
         <script src="scripts/heartbeat.js"></script>
+        <script src="scripts/applicationStatusNotifier.js"></script>
         <script src="scripts/models.js"></script>
         <script src="scripts/contactList.js"></script>
         <script src="scripts/contactDetails.js"></script>

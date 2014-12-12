@@ -4,6 +4,9 @@ class HeartBeat
   heartbeatPeriod: 20000
   timeoutPeriod: 15000
 
+  constructor: (callback) ->
+    @callback = callback
+
   checkServerAvailability: ->
     $.ajax
       type: 'GET'
@@ -14,6 +17,8 @@ class HeartBeat
       @_isOnline = true
     .fail =>
       @_isOnline = false
+    .always =>
+      if _.isFunction @callback then @callback()
 
   start: ->
     if not @_isRunning

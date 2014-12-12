@@ -1,17 +1,19 @@
 App = new Backbone.Marionette.Application
 App.addRegions
   contactViewerRegion: '#contact-viewer'
+  connectionNotifierRegion: '#connection-status'
 
-App.heartbeat = new HeartBeat
+App.heartbeat = new HeartBeat ->
+  App.isOnline = App.heartbeat.isOnline()
+  if App.isOnline
+    App.trigger 'connection:status', 'online'
+    App.connectionNotifierRegion.show new OnlineNotifierView
+  else
+    App.trigger 'connection:status', 'offline'
+    App.connectionNotifierRegion.show new OfflineNotifierView
 
 App.addInitializer ->
   App.heartbeat.start()
-
-  App.heartbeat.checkServerAvailability().done ->
-    console.log 'is online?', App.heartbeat.isOnline()
-  setInterval ->
-    console.log 'is online?', App.heartbeat.isOnline()
-  , 5000
 
   ($ '#new-contact').on 'click', (event) ->
     event.preventDefault()
