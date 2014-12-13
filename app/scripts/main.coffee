@@ -12,6 +12,8 @@ App.heartbeat = new HeartBeat ->
     App.trigger 'connection:status', 'offline'
     App.connectionNotifierRegion.show new OfflineNotifierView
 
+App.dbCached = new CachedDatabase()
+
 App.addInitializer ->
   App.heartbeat.start()
 
