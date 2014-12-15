@@ -6,7 +6,6 @@ class CachedDatabase
         store = transaction.objectStore 'contacts'
         request = store.put contact
         request.onsuccess = ->
-          console.log 'Saved', contact
         request.onerror = ->
           console.log 'Error saving', contact
         contact
@@ -19,7 +18,7 @@ class CachedDatabase
 
     @_connect()
       .done (db) ->
-        transaction = db.transaction 'contacts', 'readwrite'
+        transaction = db.transaction 'contacts', 'readonly'
         store = transaction.objectStore 'contacts'
         index = store.index 'by_name'
         request = store.openCursor()
@@ -37,7 +36,7 @@ class CachedDatabase
 
     @_connect()
       .done (db) ->
-        transaction = db.transaction 'contacts', 'readwrite'
+        transaction = db.transaction 'contacts', 'readonly'
         store = transaction.objectStore 'contacts'
         request =store.get id
         request.onsuccess = ->
@@ -45,6 +44,26 @@ class CachedDatabase
             deferred.resolve request.result
           else
             deferred.resolve(null)
+    deferred.promise()
+
+  getContactsByStatus: (status) ->
+    deferred = $.Deferred()
+    result = []
+
+    @_connect()
+      .done (db) ->
+        transaction = db.transaction 'contacts', 'readonly'
+        store = transaction.objectStore 'contacts'
+        index = store.index 'by_status'
+        request = index.openCursor(IDBKeyRange.only(status))
+        request.onsuccess = ->
+          if request.result
+            cursor = request.result
+            result.push cursor.value
+            cursor.continue()
+          else
+            deferred.resolve result
+
     deferred.promise()
 
   deleteContactById: (id) ->

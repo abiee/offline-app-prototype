@@ -76,6 +76,84 @@ class OfflineServer
 
     deferred.promise()
 
+  syncDatabase: ->
+    $.when App.dbCached.getContactsByStatus('CREATED'), \
+           App.dbCached.getContactsByStatus('UPDATED'), \
+           App.dbCached.getContactsByStatus('DELETED')
+      .done (created, updated, deleted) =>
+        @_chainAjaxRequests(created)
+          .then =>
+            @_chainAjaxRequests(updated)
+          .then =>
+            @_chainAjaxRequests(deleted)
+
+  _chainAjaxRequests: (items, i=0) ->
+    deferred = $.Deferred()
+
+    if i >= items.length then return deferred.resolve()
+
+    item = items[i]
+    @_doCachedAction(item).then =>
+      @_chainAjaxRequests items, i + 1
+    .fail ->
+      deferred.reject()
+
+  _doCachedAction: (data) ->
+    if data.status is 'CREATED'
+      @_createResourceFromCache _.omit data, 'status'
+    else if data.status is 'UPDATED'
+      @_updateResourceFromCache _.omit data, 'status'
+    else if data.status is 'DELETED'
+      @_deleteResourceFromCache _.omit data, 'status'
+
+  _createResourceFromCache: (data) ->
+    deferred = $.Deferred()
+
+    $.ajax
+      url: '/api/contacts/'
+      type: 'POST'
+      contentType: 'application/json'
+      data: JSON.stringify _.omit data, '_id'
+    .then (resp) =>
+      App.dbCached.deleteContactById(data._id).then =>
+        @cacheServerResponse resp
+        deferred.resolve()
+      .fail ->
+        deferred.reject()
+    .fail ->
+      deferred.reject()
+
+    deferred.promise()
+
+  _updateResourceFromCache: (data) ->
+    $.ajax
+      url: "/api/contacts/#{data._id}"
+      type: 'PUT'
+      contentType: 'application/json'
+      data: JSON.stringify data
+    .then (resp) =>
+      @cacheServerResponse resp
+
+  _deleteResourceFromCache: (data) ->
+    deferred = $.Deferred()
+
+    $.ajax
+      url: "/api/contacts/#{data._id}"
+      type: 'DELETE'
+      contentType: 'application/json'
+    .then (resp) =>
+      App.dbCached.deleteContactById(data._id).then ->
+        deferred.resolve()
+      .fail ->
+        deferred.reject()
+    .fail (xhr) ->
+      if xhr.status is 404
+        App.dbCached.deleteContactById(data._id).then ->
+          deferred.resolve()
+      else
+        deferred.reject()
+    deferred.promise()
+
   cacheServerResponse: (resp) ->
     if resp instanceof Array
       for item in resp
