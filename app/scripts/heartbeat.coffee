@@ -1,8 +1,8 @@
 class HeartBeat
   _isOnline: false
   _isRunning: false
-  heartbeatPeriod: 2000
-  timeoutPeriod: 1500
+  heartbeatPeriod: 20000
+  timeoutPeriod: 15000
 
   constructor: (callback) ->
     @callback = callback

@@ -109,6 +109,9 @@ class OfflineServer
   _createResourceFromCache: (data) ->
     deferred = $.Deferred()
 
+    data = _.clone data
+    data.syncId = data._id
+
     $.ajax
       url: '/api/contacts/'
       type: 'POST'

@@ -10,7 +10,8 @@ var ContactSchema = new Schema({
     emails: [{
         description: String,
         email: String
-    }]
+    }],
+    syncId: String
 });
 var Contact = mongoose.model('Contact', ContactSchema);
 
@@ -25,14 +26,23 @@ function handleDatabaseError(req, res, err) {
 
 function createContact(req, res) {
     var contactData = req.body;
-    var contact = new Contact(contactData);
-    contact.save(function (err) {
+
+    Contact.findOne({ syncId: contactData.syncId }, function (err, contact) {
         if (err) {
             handleDatabaseError(req, res, err);
+        } else if (contact) {
+          res.json(contact)
         } else {
-            res.json(contact);
+          var contact = new Contact(contactData);
+          contact.save(function (err) {
+              if (err) {
+                  handleDatabaseError(req, res, err);
+              } else {
+                  res.json(contact);
+              }
+          });
         }
-    });
+    })
 }
 
 function showContactList(req, res) {
