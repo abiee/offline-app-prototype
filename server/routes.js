@@ -27,22 +27,30 @@ function handleDatabaseError(req, res, err) {
 function createContact(req, res) {
     var contactData = req.body;
 
-    Contact.findOne({ syncId: contactData.syncId }, function (err, contact) {
-        if (err) {
-            handleDatabaseError(req, res, err);
-        } else if (contact) {
-          res.json(contact)
-        } else {
-          var contact = new Contact(contactData);
-          contact.save(function (err) {
-              if (err) {
-                  handleDatabaseError(req, res, err);
-              } else {
-                  res.json(contact);
-              }
-          });
-        }
-    })
+    function createContact(contactData) {
+        var contact = new Contact(contactData);
+        contact.save(function (err) {
+            if (err) {
+                handleDatabaseError(req, res, err);
+            } else {
+                res.json(contact);
+            }
+        });
+    }
+
+    if (contactData.syncId !== '') {
+        createContact(contactData);
+    } else {
+      Contact.findOne({ syncId: contactData.syncId }, function (err, contact) {
+          if (err) {
+              handleDatabaseError(req, res, err);
+          } else if (contact) {
+            res.json(contact)
+          } else {
+            createContact(contactData);
+          }
+      })
+    }
 }
 
 function showContactList(req, res) {
